@@ -57,13 +57,17 @@ export default function Home() {
     <main className="min-h-screen flex flex-col bg-background selection:bg-primary/20">
       <Navbar />
 
-      <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        {/* Decorative Background Elements */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] pointer-events-none opacity-50" />
+      {/* Add padding-top to prevent content from hiding under navbar */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 pt-28 sm:pt-32 relative overflow-hidden">
+        {/* Modern Dapp Background: Animated purple orb and grid */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/30 rounded-full blur-[160px] opacity-60 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-background opacity-80" />
+        </div>
 
-        <div className="relative z-10 flex flex-col items-center gap-8 max-w-md w-full">
+        <div className="relative z-10 flex flex-col items-center gap-10 max-w-md w-full">
           <div className="text-center space-y-2">
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight lg:text-6xl bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-primary via-accent to-foreground bg-clip-text text-transparent drop-shadow-[0_2px_16px_rgba(139,92,246,0.7)]">
               Counter
             </h1>
             <p className="text-muted-foreground text-lg">
@@ -71,12 +75,12 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="w-full aspect-square max-w-[280px] bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl flex items-center justify-center relative group">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-50" />
-            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-50" />
+          <div className="w-full aspect-square max-w-[320px] bg-card/70 backdrop-blur-2xl border-2 border-primary/40 rounded-3xl shadow-[0_8px_32px_0_rgba(139,92,246,0.25)] flex items-center justify-center relative group">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-60" />
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-60" />
 
             {isReadingCount ? (
-              <Loader2 className="h-16 w-16 animate-spin text-muted-foreground" />
+              <Loader2 className="h-16 w-16 animate-spin text-primary/60" />
             ) : (
               <AnimatePresence mode="popLayout">
                 <motion.span
@@ -85,7 +89,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.8 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="text-8xl font-bold tracking-tighter tabular-nums text-foreground drop-shadow-xl"
+                  className="text-8xl font-bold tracking-tighter tabular-nums text-primary drop-shadow-[0_2px_32px_rgba(139,92,246,0.7)]"
                 >
                   {count}
                 </motion.span>
@@ -94,23 +98,57 @@ export default function Home() {
           </div>
 
           {/* Input field for custom value */}
-          <div className="flex flex-col items-center gap-2 w-full max-w-[200px]">
+          <div className="flex flex-col items-center gap-2 w-full max-w-[220px]">
             <label htmlFor="amount" className="text-sm text-muted-foreground">
               Amount to add/subtract
             </label>
-            <input
-              id="amount"
-              type="number"
-              min="1"
-              value={inputValue}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 text-center text-xl font-semibold bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              disabled={isWriting}
-            />
+            <div className="relative w-full">
+              <input
+                id="amount"
+                type="number"
+                min="1"
+                value={inputValue}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 text-center text-xl font-semibold bg-card/80 border-2 border-primary/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-[0_2px_16px_rgba(139,92,246,0.15)] appearance-none pr-16"
+                disabled={isWriting}
+                style={{ MozAppearance: 'textfield' }}
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1">
+                <button
+                  type="button"
+                  className="w-7 h-6 flex items-center justify-center rounded-t-md bg-primary/20 hover:bg-primary/40 text-primary text-lg font-bold transition-colors disabled:opacity-50"
+                  onClick={() => setInputValue((v) => Math.max(1, v + 1))}
+                  disabled={isWriting}
+                  tabIndex={-1}
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  className="w-7 h-6 flex items-center justify-center rounded-b-md bg-primary/20 hover:bg-primary/40 text-primary text-lg font-bold transition-colors disabled:opacity-50"
+                  onClick={() => setInputValue((v) => Math.max(1, v - 1))}
+                  disabled={isWriting || inputValue <= 1}
+                  tabIndex={-1}
+                >
+                  ▼
+                </button>
+              </div>
+            </div>
+            <style jsx global>{`
+              /* Hide default number input arrows for all browsers */
+              input[type=number]::-webkit-inner-spin-button,
+              input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+              }
+              input[type=number] {
+                -moz-appearance: textfield;
+              }
+            `}</style>
           </div>
 
           <div className="flex flex-col items-center gap-4 w-full">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <DecreaseButton
                 onClick={handleDecrease}
                 value={inputValue}
@@ -122,13 +160,13 @@ export default function Home() {
                 onClick={handleRefresh}
                 variant="secondary"
                 size="icon"
-                className="h-12 w-12 rounded-full hover:rotate-180 transition-transform duration-500"
+                className="h-12 w-12 rounded-full border-2 border-primary/40 bg-background/80 hover:rotate-180 hover:border-accent transition-transform duration-500 shadow-[0_2px_16px_rgba(139,92,246,0.15)]"
                 disabled={isReadingCount}
               >
                 {isReadingCount ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 ) : (
-                  <RotateCcw className="h-5 w-5" />
+                  <RotateCcw className="h-5 w-5 text-primary" />
                 )}
               </Button>
 

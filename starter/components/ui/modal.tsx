@@ -32,7 +32,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-gradient-to-br from-background via-primary/10 to-background opacity-90 backdrop-blur-2xl"
             onClick={onClose}
           />
           <motion.div
@@ -40,15 +40,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-md overflow-hidden rounded-xl border bg-card p-6 shadow-lg sm:p-8"
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border-2 border-primary/40 bg-card/80 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(139,92,246,0.25)] sm:p-8 p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              {title && <h2 className="text-xl font-semibold tracking-tight">{title}</h2>}
+              {title && <h2 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-primary via-accent to-foreground bg-clip-text text-transparent">{title}</h2>}
               <button
                 onClick={onClose}
-                className="rounded-full p-2 hover:bg-accent transition-colors opacity-70 hover:opacity-100"
+                className="rounded-full p-2 hover:bg-primary/20 transition-colors opacity-70 hover:opacity-100 border border-primary/30"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 text-primary" />
                 <span className="sr-only">Close</span>
               </button>
             </div>
