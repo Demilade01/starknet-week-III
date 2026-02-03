@@ -1,32 +1,23 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Loader2 } from "lucide-react";
 import { useWallet } from "../context/WalletContext";
+import { useBalance } from "@starknet-react/core";
+import { STRK_SEPOLIA } from "@/lib/coins";
 
 export function TokenBalance() {
-  const { isConnected } = useWallet();
-  const [balance, setBalance] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { isConnected, address } = useWallet();
 
-  useEffect(() => {
-    if (isConnected) {
-      setLoading(true);
-      // Simulate network request
-      const timer = setTimeout(() => {
-        setBalance("1,000.00");
-        setLoading(false);
-      }, 1500);
-
-      return () => clearTimeout(timer);
-    } else {
-      setBalance(null);
-    }
-  }, [isConnected]);
+  const { data: balance, isLoading, error } = useBalance({
+    address: address as `0x${string}` | undefined,
+    token: STRK_SEPOLIA as `0x${string}`,
+    watch: true,
+  });
 
   if (!isConnected) return null;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border border-border/50">
         <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
@@ -37,7 +28,18 @@ export function TokenBalance() {
     );
   }
 
-  if (!balance) return null;
+  if (error || !balance) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border border-border/50">
+        <span className="text-xs font-medium text-muted-foreground">
+          -- STRK
+        </span>
+      </div>
+    );
+  }
+
+  // Format balance to 4 decimal places
+  const formattedBalance = parseFloat(balance.formatted).toFixed(4);
 
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-full border border-border/50 hover:bg-secondary/70 transition-colors">
@@ -49,7 +51,7 @@ export function TokenBalance() {
           height={20}
         />
       </div>
-      <span className="text-sm font-medium font-mono">{balance} STRK</span>
+      <span className="text-sm font-medium font-mono">{formattedBalance} STRK</span>
     </div>
   );
 }

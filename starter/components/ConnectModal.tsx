@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { Modal } from "./ui/modal";
 import { useWallet } from "@/context/WalletContext";
-import { Loader2, Zap, Shield } from "lucide-react";
+import { Loader2, Wallet } from "lucide-react";
+import { Connector } from "@starknet-react/core";
 
 interface ConnectModalProps {
   isOpen: boolean;
@@ -11,46 +12,73 @@ interface ConnectModalProps {
 }
 
 export function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
-  const { connect } = useWallet();
-  const [connecting, setConnecting] = useState<"Braavos" | "Ready" | null>(null);
+  const { connect, connectors, isConnecting } = useWallet();
+  const [connectingId, setConnectingId] = useState<string | null>(null);
 
-  const handleConnect = async (wallet: "Braavos" | "Ready") => {
-    setConnecting(wallet);
-    await connect(wallet);
-    setConnecting(null);
-    onClose();
+  const handleConnect = async (connector: Connector) => {
+    setConnectingId(connector.id);
+    connect(connector);
+    // Close modal after a short delay to allow connection to process
+    setTimeout(() => {
+      setConnectingId(null);
+      onClose();
+    }, 500);
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Connect Wallet">
       <div className="grid gap-4">
-        <button
-          onClick={() => handleConnect("Braavos")}
-          disabled={connecting !== null}
-          className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent hover:border-primary/50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-              <Shield className="h-5 w-5 text-blue-500" />
+        {connectors.map((connector) => (
+          <button
+            key={connector.id}
+            onClick={() => handleConnect(connector)}
+            disabled={isConnecting}
+            className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent hover:border-primary/50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                {connector.icon ? (
+                  <img
+                    src={typeof connector.icon === 'string' ? connector.icon : connector.icon.dark}
+                    alt={connector.name}
+                    className="h-6 w-6"
+                  />
+                ) : (
+                  <Wallet className="h-5 w-5 text-primary" />
+                )}
+              </div>
+              <span className="font-medium">{connector.name}</span>
             </div>
-            <span className="font-medium">Braavos</span>
+            {connectingId === connector.id && (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </button>
+        ))}
+        {connectors.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>No wallets detected.</p>
+            <p className="text-sm mt-2">
+              Please install{" "}
+              <a
+                href="https://braavos.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Braavos
+              </a>{" "}
+              or{" "}
+              <a
+                href="https://www.argent.xyz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                ArgentX
+              </a>
+            </p>
           </div>
-          {connecting === "Braavos" && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-        </button>
-
-        <button
-          onClick={() => handleConnect("Ready")}
-          disabled={connecting !== null}
-          className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent hover:border-primary/50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center group-hover:bg-yellow-500/20 transition-colors">
-              <Zap className="h-5 w-5 text-yellow-500" />
-            </div>
-            <span className="font-medium">Ready</span>
-          </div>
-          {connecting === "Ready" && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-        </button>
+        )}
       </div>
     </Modal>
   );

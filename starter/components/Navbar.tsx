@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { useWallet } from "@/context/WalletContext";
 import { ConnectModal } from "./ConnectModal";
 import { TokenBalance } from "./TokenBalance";
+import { UsdcBalance } from "./UsdcBalance";
 import { DisconnectModal } from "./DisconnectModal";
 import { Wallet } from "lucide-react";
 
@@ -34,23 +35,29 @@ export function Navbar() {
             </span>
           </div>
 
-          <Button
-            onClick={handleWalletClick}
-            variant={isConnected ? "outline" : "default"}
-            className="rounded-full font-semibold gap-2 transition-all duration-300"
-          >
-            <Wallet className="h-4 w-4" />
-            {isConnected && address ? (
-              <>
+          <div className="flex items-center gap-3">
+            {isConnected && (
+              <div className="hidden sm:flex items-center gap-2">
                 <TokenBalance />
+                <UsdcBalance />
+              </div>
+            )}
+
+            <Button
+              onClick={handleWalletClick}
+              variant={isConnected ? "outline" : "default"}
+              className="rounded-full font-semibold gap-2 transition-all duration-300"
+            >
+              <Wallet className="h-4 w-4" />
+              {isConnected && address ? (
                 <span className="font-mono">
                   {address.slice(0, 6)}...{address.slice(-4)}
                 </span>
-              </>
-            ) : (
-              "Connect Wallet"
-            )}
-          </Button>
+              ) : (
+                "Connect Wallet"
+              )}
+            </Button>
+          </div>
         </div>
       </nav>
 

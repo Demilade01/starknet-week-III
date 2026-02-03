@@ -1,42 +1,50 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode } from "react";
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  Connector,
+} from "@starknet-react/core";
 
 interface WalletContextType {
   isConnected: boolean;
   address: string | null;
-  walletName: "Braavos" | "Ready" | null;
-  connect: (wallet: "Braavos" | "Ready") => Promise<void>;
+  walletName: string | null;
+  connectors: readonly Connector[];
+  connect: (connector: Connector) => void;
   disconnect: () => void;
+  isConnecting: boolean;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [walletName, setWalletName] = useState<"Braavos" | "Ready" | null>(null);
+  const { address, isConnected, connector } = useAccount();
+  const { connect, connectors, isPending: isConnecting } = useConnect();
+  const { disconnect } = useDisconnect();
 
-  const connect = async (wallet: "Braavos" | "Ready") => {
-    // Simulate connection delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Mock address
-    const mockAddress = "0x0123...abc" + Math.floor(Math.random() * 1000).toString();
-    
-    setIsConnected(true);
-    setAddress(mockAddress);
-    setWalletName(wallet);
+  const handleConnect = (connector: Connector) => {
+    connect({ connector });
   };
 
-  const disconnect = () => {
-    setIsConnected(false);
-    setAddress(null);
-    setWalletName(null);
+  const handleDisconnect = () => {
+    disconnect();
   };
 
   return (
-    <WalletContext.Provider value={{ isConnected, address, walletName, connect, disconnect }}>
+    <WalletContext.Provider
+      value={{
+        isConnected: isConnected ?? false,
+        address: address ? `0x${address.slice(2)}` : null,
+        walletName: connector?.name || null,
+        connectors,
+        connect: handleConnect,
+        disconnect: handleDisconnect,
+        isConnecting,
+      }}
+    >
       {children}
     </WalletContext.Provider>
   );
